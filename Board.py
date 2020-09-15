@@ -6,6 +6,9 @@ import random
 from pynput.keyboard import Key, Listener
 import os
 import pygame
+from datetime import datetime
+import json
+
 
 class Board(object):
     def __init__(self):
@@ -26,25 +29,45 @@ class Board(object):
                 self.board[_x][_y].generate()
                 aux += 1
         self.availablePositions: list = []
+        self.counterMovements = {'up': 0, 'down': 0, 'left': 0, 'right': 0}
 
     def getBoard(self) -> list:
         return self.board
-        
-    def getAvaialblePositions(self) -> None:
-        self.availablePositions = list()
+
+    def points(self) -> int:
         max = 0
         for i in range(len(self.board[0])):
             for j in range(len(self.board[0])):
                 if self.board[i][j].value > max:
                     max = self.board[i][j].value
+        return max
+
+    def getAvaialblePositions(self) -> None:
+        self.availablePositions = list()
+        for i in range(len(self.board[0])):
+            for j in range(len(self.board[0])):
                 if self.board[i][j].value == 0:
                     self.availablePositions.append((i, j))
         if len(self.availablePositions) == 0:
-            print("Sua pontuação foi {}".format(max))
+            print("Sua pontuação foi {}".format(self.points()))
             print("Game Over")
             print('Seu tabuleiro: ')
             print(self)
+            self.serialize()
             exit()
+
+    def serialize(self) -> None:
+        save = {}
+        b = []
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                b.append(self.board[i][j].value)
+        save['board'] = b
+        save['movements'] = self.counterMovements
+        save['points'] = self.points()
+        now = datetime.now()
+        with open('./saves/' + now.strftime("%d_%m_%Y%H_%M_%S") + '.json', 'w') as jsf:
+            json.dump(save, jsf, ensure_ascii=False, indent=4)
 
     def generateRandomPosition(self) -> tuple:
         self.getAvaialblePositions()
@@ -62,71 +85,109 @@ class Board(object):
             st += '\n'
         return str(st)
 
-    def _merge_column_up(self, _y: int) -> None:
-        flag = True
-        while flag:
-            flag = False
-            for i in range(4):
-                j = i
-                while i > 0:
-                    if (self.board[j][_y].value != 0) and (self.board[j - 1][_y].value == 0):
-                        self.board[j - 1][_y].value = self.board[j][_y].value
-                        self.board[j][_y].value = 0
-                        flag = True
-                    elif (self.board[j][_y].value != 0) and (self.board[j - 1][_y].value != 0):
-                        if (self.board[j][_y].value == self.board[j - 1][_y].value) and (self.board[j][_y].isAvailable() and self.board[j - 1][_y].isAvailable()):
-                            self.board[j - 1][_y].value = self.board[j][_y].value + \
-                                self.board[j - 1][_y].value
-                            self.board[j][_y].value = 0
-                            self.board[j][_y].setAvailable(False)
-                            self.board[j - 1][_y].setAvailable(False)
-                            flag = True
-                    i -= 1
-
-    def generate(self):
+    def generate(self) -> None:
         position = self.generateRandomPosition()
         self.board[position[0]][position[1]].generate()
 
+    def __can_move_hor(self, mov):
+        """
+            mov = 1 = right
+            mov = -1 = left
+        """
+        if mov == -1:
+            for lin in range(len(self.board)):
+                for col in range(len(self.board[lin]) - 1, -1, -1):
+                    if col - 1 >= 0:
+                        if self.board[lin][col].value != 0 and self.board[lin][col - 1].value == 0:
+                            return True
+                        elif self.board[lin][col].value == self.board[lin][col - 1].value and self.board[lin][col].value != 0:
+                            return True
+            return False
+        if mov == 1:
+            for lin in range(len(self.board)):
+                for col in range(len(self.board[lin])):
+                    if col + 1 < len(self.board[lin]):
+                        if self.board[lin][col].value != 0 and self.board[lin][col + 1].value == 0:
+                            return True
+                        elif self.board[lin][col].value == self.board[lin][col + 1].value and self.board[lin][col].value != 0:
+                            return True
+            return False
+    def __can_move_ver(self, mov):
+        """
+            mov = 1 = Up
+            mov = -1 = Down
+        """
+        if mov == 1:
+            for col in range(len(self.board)):
+                for lin in range(len(self.board[col]) - 1, -1, -1):
+                    if lin - 1 >= 0:
+                        if self.board[lin][col].value != 0 and self.board[lin - 1][col].value == 0:
+                            return True
+                        elif self.board[lin][col].value == self.board[lin - 1][col].value and self.board[lin][col].value != 0:
+                            return True
+            return False
+        if mov == -1:
+            for col in range(len(self.board)):
+                for lin in range(len(self.board[col]) - 1, -1, -1):
+                    if lin + 1 < len(self.board[col]):
+                        if self.board[lin][col].value != 0 and self.board[lin + 1][col].value == 0:
+                            return True
+                        elif self.board[lin][col].value == self.board[lin + 1][col].value and self.board[lin][col].value != 0:
+                            return True
+            return False
 
     def move_up(self) -> None:
-        self.board = self.board[::-1]
-        for i in range(len(self.board[0])):
-            self.mergeColumn(i)
-        self.board = self.board[::-1]
-        position = self.generateRandomPosition()
-        self.board[position[0]][position[1]].generate()
+        print(self.__can_move_ver(1))
+        if self.__can_move_ver(1):
+            self.board = self.board[::-1]
+            for i in range(len(self.board[0])):
+                self.mergeColumn(i)
+            self.board = self.board[::-1]
+
+            position = self.generateRandomPosition()
+            self.board[position[0]][position[1]].generate()
+            self.counterMovements['up'] += 1
 
     def move_down(self) -> None:
-        for i in range(len(self.board[0])):
-            self.mergeColumn(i)
-        position = self.generateRandomPosition()
-        self.board[position[0]][position[1]].generate()
+        print(self.__can_move_ver(-1))
+        if self.__can_move_ver(-1):
+            for i in range(len(self.board[0])):
+                self.mergeColumn(i)
+
+            position = self.generateRandomPosition()
+            self.board[position[0]][position[1]].generate()
+            self.counterMovements['down'] += 1
 
     def move_right(self) -> None:
-        for i in range(len(self.board[0])):
-            self.mergeLine(i)
-        position = self.generateRandomPosition()
-        self.board[position[0]][position[1]].generate()
+        print(self.__can_move_hor(1))
+        if self.__can_move_hor(1):
+            for i in range(len(self.board[0])):
+                self.mergeLine(i)
+            position = self.generateRandomPosition()
+            self.board[position[0]][position[1]].generate()
+            self.counterMovements['right'] += 1
 
     def move_left(self) -> None:
-        # self.board = self.board[::-1]
-        for i in range(len(self.board)):
-            self.board[i] = self.board[i][::-1]
-        for i in range(len(self.board[0])):
-            self.mergeLine(i)
-        for i in range(len(self.board)):
-            self.board[i] = self.board[i][::-1]
-        # self.board = self.board[::-1]
-        position = self.generateRandomPosition()
-        self.board[position[0]][position[1]].generate()
+        print(self.__can_move_hor(-1))
+        if self.__can_move_hor(-1):
+            for i in range(len(self.board)):
+                self.board[i] = self.board[i][::-1]
+            for i in range(len(self.board[0])):
+                self.mergeLine(i)
+            for i in range(len(self.board)):
+                self.board[i] = self.board[i][::-1]
+            position = self.generateRandomPosition()
+            self.board[position[0]][position[1]].generate()
+            self.counterMovements['left'] += 1
 
-    def mergeColumn(self, y):
+    def mergeColumn(self, y: int) -> None:
         moved = True
         while(moved):
             moved = False
             for i in range(len(self.board[0]) - 2, -1, -1):
                 if (self.board[i+1][y].value == 0 and self.board[i][y].value != 0):
-                    self.board[i][y].value, self.board[i + 1][y].value = self.board[i+1][y].value, self.board[i][y].value
+                    self.board[i][y].value, self.board[i +
+                                                       1][y].value = self.board[i+1][y].value, self.board[i][y].value
                     aux = self.board[i][y].isAvailable()
                     self.board[i][y].setAvailable(
                         self.board[i+1][y].isAvailable())
@@ -140,7 +201,7 @@ class Board(object):
                     moved = True
         self.__resetAvailable()
 
-    def mergeLine(self, x):
+    def mergeLine(self, x: int) -> None:
         moved = True
         while(moved):
             moved = False
@@ -165,44 +226,3 @@ class Board(object):
         for i in range(4):
             for j in range(4):
                 self.board[i][j].setAvailable(True)
-
-b = Board()
-print(b)
-# b.move_down()
-# print(b)
-# # while True:
-# #     print(b)
-# #     input()
-# #     b.move_up()
-
-
-# def on_press(key):
-#     # print('{0} pressed'.format(
-#     #     key))
-#     os.system('clear')
-#     print("Pressed: ", key)
-#     if key == Key.left:
-#         b.move_left()
-#         b.generate()
-#     if key == Key.up:
-#         b.move_up()
-#         b.generate()
-#     if key == Key.down:
-#         b.move_down()
-#         b.generate()
-#     if key == Key.right:
-#         b.move_right()
-#         b.generate()
-#     print(b)
-
-
-# def on_release(key):
-#     if key == Key.esc:
-#         # Stop listener
-#         return False
-
-
-# # Collect events until released
-# with Listener(on_press=on_press,
-#               on_release=on_release) as listener:
-#     listener.join()
