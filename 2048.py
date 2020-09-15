@@ -2,9 +2,9 @@ import pygame
 from pygame.locals import *
 import sys
 import os
-import math
+from math import *
 from Tile import Tile
-map = [[0,0,0,1],[0,0,0,1],[0,0,0,1],[0,0,0,1]]
+map = [[0,0,0,1],[0,0,1,1],[0,1,0,1],[1,0,0,1]]
 class App:
 	def __init__(self):
 		self._running = True
@@ -39,11 +39,27 @@ class App:
 		for i in range(1, 12):
 			self.tileImage[2**i] = pygame.image.load(os.path.join('images',str(2**i)+'.png')).convert_alpha()
 
-	def move(self):
-		for i in range(4): #line
-			for j in range(4): #column
-				if type(self.gameState[i][j]) != type(None):
-					self.gameState[i][j].setMoveTo( 3, i , False)
+	def move(self, dir):
+		if dir == 'l':
+			for lin in range(4): #line
+				for col in range(4): #column
+					if type(self.gameState[lin][col]) != type(None):
+						self.gameState[lin][col].setMoveTo( 0, lin  , False)
+		elif dir == 'r':
+			for lin in range(4): #line
+				for col in range(4): #column
+					if type(self.gameState[lin][col]) != type(None):
+						self.gameState[lin][col].setMoveTo( 3, lin  , False)
+		elif dir == 'u':
+			for lin in range(4): #line
+				for col in range(4): #column
+					if type(self.gameState[lin][col]) != type(None):
+						self.gameState[lin][col].setMoveTo( col, 0  , False)
+		elif dir == 'd':
+			for lin in range(4): #line
+				for col in range(4): #column
+					if type(self.gameState[lin][col]) != type(None):
+						self.gameState[lin][col].setMoveTo( col, 3  , False)
 		
 
 	def on_event(self, event):
@@ -51,22 +67,44 @@ class App:
 			self._running = False
 		if event.type == KEYDOWN:
 			if event.key == pygame.K_RIGHT:
-				self.tile['x'] += 1
+				self.move('r')
 			if event.key == pygame.K_LEFT:
 				#self.tile['x'] -= 1
-				self.move()
+				self.move('l')
 			if event.key == pygame.K_UP:
-				self.tile['y'] -= 1
+				self.move('u')
 			if event.key == pygame.K_DOWN:
-				self.tile['y'] += 1
+				self.move('d')
+	
+	def drawTile(self, tile: Tile):
+		line = tile.position['y']
+		column = tile.position['x']
+		value = tile.getValue()
+		lineGap = floor((floor(line)+1) * self.tileGap + line*self.tileArea)
+		columnGap = floor((floor(column) + 1) * self.tileGap + column * self.tileArea)
+		self._display.blit(self.tileImage[value], (columnGap, lineGap ))
+
 
 	def on_loop(self):
+		self.animating = False
 		for lin in range(4):
 			for col in range(4):
-				if type(self.gameState[lin][col]) != type(None):
-					print(self.gameState[lin][col].shouldMove())
-					pass
+				tile = self.gameState[lin][col]
 
+				if type(tile) != type(None):
+					print(f'{lin} {col} {tile.shouldMove()}')
+					if tile.shouldMove():
+						if tile.position['x'] > tile.moveTo['x']:
+							tile.move('l')
+						if tile.position['x'] < tile.moveTo['x']:
+							tile.move('r')
+						if tile.position['y'] > tile.moveTo['y']:
+							tile.move('u')
+						if tile.position['y'] < tile.moveTo['y']:
+							tile.move('d')
+						self.animating = True
+		
+						
 	
 	def on_render(self):
 		pygame.display.flip()
@@ -74,7 +112,7 @@ class App:
 		for lin in range(4):
 			for col in range(4):
 				if type(self.gameState[lin][col]) != type(None):
-					self._display.blit(self.tileImage[self.gameState[lin][col].getValue()], (self.tileGap*(col+1) + col*self.tileArea, (lin+1)* self.tileGap + lin*self.tileArea))
+					self.drawTile(self.gameState[lin][col])
 		pygame.display.update() 
 			
 
@@ -98,7 +136,7 @@ class App:
 
 			self.on_render()
 
-			FPS.tick(30)
+			FPS.tick(60)
 		self.on_cleanup()
  
 if __name__ == "__main__" :
