@@ -29,7 +29,7 @@ class Game(object):
             for j in range(len(self.board.getBoard()[0])):
                 text = font.render(
                     str(self.board.getBoard()[i][j]), True, (255, 255, 255))
-                screen.blit(text, (45 + i * 125, 45 + j * 125))
+                screen.blit(text, (45 + j * 125, 45 + i * 125))
 
         pygame.display.update()
     
