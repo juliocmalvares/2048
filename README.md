@@ -1,6 +1,9 @@
 # 2048
 
-This is a repository for creating bots to play the 2048 game
+Repository for 2048 game with bots trying to reach the maximum posible score.
+
 
 ## To execute the game, type on terminal
-`python3 Game.py`
+`python3 2048.py`
+
+

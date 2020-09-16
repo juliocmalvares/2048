@@ -75,8 +75,8 @@ class Board(object):
 		if len(self.availablePositions) > 0:
 			index: int = random.randint(0, (len(self.availablePositions) - 1))
 			retorno = self.availablePositions[index]
-            self.availablePositions.pop(index)
-            return retorno
+			self.availablePositions.pop(index)
+			return retorno
 		else:
 			return (-1, -1)
 
