@@ -125,7 +125,7 @@ class App:
 			
 
 	def printScore(self):
-		print('chupa meu cu')
+		print('')
 
 	def on_cleanup(self):
 		self.printScore()
