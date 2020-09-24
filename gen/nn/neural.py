@@ -1,10 +1,11 @@
 
 
 class Neural(object):
-    def __init__(self, _layers: int, _learning_rate: float):
+    def __init__(self, _layers: int, _learning_rate: float, *args, **kwargs):
         super(Neural, self).__init__()
         self.__nlayers = _layers
         self.__learn_rate = _learning_rate
+        self.layers = list(args)
     
 
     @property
