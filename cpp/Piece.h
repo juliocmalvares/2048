@@ -22,6 +22,7 @@ class Piece {
         void setX(int _x);
         void setY(int _y);
         void setAvailable(bool condition);
+        void generate();
     private:
         friend ostream &operator<<(ostream &out, const Piece  &p) {
             out << p.getValue();

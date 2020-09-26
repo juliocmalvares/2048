@@ -72,3 +72,7 @@ Piece Piece::operator+(Piece &other) {
     other.setValue(0);
     return aux;
 }
+
+void Piece::generate() {
+    value = (_rand() < .9) ? 2: 4;
+}
