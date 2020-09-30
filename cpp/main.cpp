@@ -35,11 +35,12 @@ int main() {
     // cout << aux["up"] << endl;
 
     Board b;
+   	cout << "Original" << endl;
+	cout << b << endl << endl;  
+	
+	b.moveDown();
+	cout << "Movido Down"<< endl;
+	cout << b << endl;
     
-    cout << b << endl;
-    
-    b.moveRight();
-    cout << b<< endl;
-  
-    return 0;
+	return 0;
 }

@@ -1,4 +1,3 @@
-
 #include <string>
 #include <iostream>
 #include "Piece.h"
@@ -163,4 +162,66 @@ void Board::moveRight() {
     }
 
     generateRandomPosition();
+    counterMovements["right"] ++;
+}
+
+void Board::moveLeft() {	
+    rotate_board_by_line();
+    for(int i = 0; i < getSize(); i ++) {
+	mergeLine(i);
+    }
+    rotate_board_by_line();
+    generateRandomPosition();
+    counterMovements["left"] ++;
+}
+
+void Board::moveUp() {
+    rotate_board_by_column();
+    for(int i = 0; i < getSize(); i ++) {
+	    mergeColumn(i);
+    }
+    rotate_board_by_column();
+    generateRandomPosition();
+    counterMovements["up"] ++;
+}
+
+void Board::moveDown() {
+    for(int i = 0; i < getSize(); i ++) {
+	    mergeColumn(i);
+    }
+    generateRandomPosition();
+    counterMovements["down"] ++;
+}
+
+
+void Board::rotate_board_by_line() {
+
+	int aux[getSize()][getSize()];
+	for(int i = 0; i < getSize(); i++) {
+		for(int j = getSize() - 1; j >= 0; j--) {
+			aux[i][j] = board[i][getSize() - j - 1].getValue();
+		}
+	}
+
+	for(int i = 0; i < getSize(); i++) {
+		for(int j = 0; j < getSize(); j++) {
+			board[i][j].setValue(aux[i][j]);
+		}
+	}
+}
+
+void Board::rotate_board_by_column() {
+
+	int aux[getSize()][getSize()];
+	for(int i = 0; i < getSize(); i++) {
+		for(int j = getSize() - 1; j >= 0; j--) {
+			aux[j][i] = board[getSize() - j - 1][i].getValue();
+		}
+	}
+
+	for(int i = 0; i < getSize(); i++) {
+		for(int j = 0; j < getSize(); j++) {
+			board[j][i].setValue(aux[j][i]);
+		}
+	}
 }

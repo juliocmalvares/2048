@@ -19,10 +19,16 @@ class Board {
         void printAvailablePositions();
         tuple<int, int> getRandomPosition();
         void generateRandomPosition();
-        void moveRight();
-        void moveLeft(); //finish
-        void moveUp(); //finish
-        void moveDown(); //finish
+        /*
+            TODO:
+                - implementar as funções que verificam se o movimento é possível para usar nos movimentadores
+                - Só criar peças novas se o movimento foi concretizado (se houve peças movimentadas)
+                - Implementar game over
+        */
+        void moveRight(); 
+        void moveLeft(); 
+        void moveUp(); 
+        void moveDown(); 
     private:
         Piece **board;
         int boardSize;
@@ -38,10 +44,11 @@ class Board {
             }
             return out;
         }
-        void rotateBoard(); //finish
         void mergeLine(int x);
         void mergeColumn(int y);
         void resetAvaialablePieces();
+	    void rotate_board_by_line();
+        void rotate_board_by_column();
 };
 
 

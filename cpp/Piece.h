@@ -20,6 +20,7 @@ class Piece {
         std::string toString();
         void setValue(int _value);
         void setX(int _x);
+
         void setY(int _y);
         void setAvailable(bool condition);
         void generate();
