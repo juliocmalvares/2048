@@ -6,6 +6,7 @@
 #include <map>
 #include "Board.h"
 #include <time.h>
+#include <stdexcept>
 
 Board::Board() {
     boardSize = 4;
@@ -157,40 +158,60 @@ void Board::mergeColumn(int y) {
 }
 
 void Board::moveRight() {
-    for(int i = 0; i < getSize(); i ++) {
-        mergeLine(i);
-    }
-
-    generateRandomPosition();
-    counterMovements["right"] ++;
+	if(can_move_by_line(1)) {
+    		for(int i = 0; i < getSize(); i ++) {
+        		mergeLine(i);
+    		}
+   		generateRandomPosition();
+		counterMovements["right"] ++;
+		cout << "Moved right" << endl;
+	}else{
+		cout << "Not Moved right" << endl;
+	}
 }
 
-void Board::moveLeft() {	
-    rotate_board_by_line();
-    for(int i = 0; i < getSize(); i ++) {
-	mergeLine(i);
-    }
-    rotate_board_by_line();
-    generateRandomPosition();
-    counterMovements["left"] ++;
+void Board::moveLeft() {
+	if(can_move_by_line(0)) {
+		rotate_board_by_line();
+    		for(int i = 0; i < getSize(); i ++) {
+			mergeLine(i);
+   		 }
+    		rotate_board_by_line();
+    		generateRandomPosition();
+    		counterMovements["left"] ++;
+		cout << "Moved Left " << endl;
+	}else {
+		cout << "Not Moved left " << endl;
+	}
 }
 
 void Board::moveUp() {
-    rotate_board_by_column();
-    for(int i = 0; i < getSize(); i ++) {
-	    mergeColumn(i);
-    }
-    rotate_board_by_column();
-    generateRandomPosition();
-    counterMovements["up"] ++;
+
+	if(can_move_by_column(1)) {
+    		rotate_board_by_column();
+    		for(int i = 0; i < getSize(); i ++) {
+	    		mergeColumn(i);
+    		}
+    		rotate_board_by_column();
+		generateRandomPosition();
+		counterMovements["up"] ++;
+		cout << "Moved up" << endl;
+	}else {
+		cout << "Not moved up" << endl;
+	}
 }
 
 void Board::moveDown() {
-    for(int i = 0; i < getSize(); i ++) {
-	    mergeColumn(i);
-    }
-    generateRandomPosition();
-    counterMovements["down"] ++;
+	if(can_move_by_column(0)) {
+		for(int i = 0; i < getSize(); i ++) {
+	   		mergeColumn(i);
+		}
+		generateRandomPosition();
+    		counterMovements["down"] ++;
+		cout << "Moved Down" << endl;
+	}else {
+		cout << "Not moved down " << endl;
+	}
 }
 
 
@@ -224,4 +245,77 @@ void Board::rotate_board_by_column() {
 			board[j][i].setValue(aux[j][i]);
 		}
 	}
+}
+
+bool Board::can_move_by_line(int direction) {
+	//1 -> right
+	//0 -> left
+	if(direction == 0) {
+		for(int lin = 0; lin < getSize(); lin++){
+			for(int col = getSize() - 1; col > -1; col--) {
+				if (col - 1 >= 0) {
+					if(board[lin][col].getValue() != 0 && board[lin][col - 1].getValue() == 0) return true;
+					else if(board[lin][col].getValue() == board[lin][col - 1].getValue() && board[lin][col].getValue() != 0) return true;
+				}
+			}
+		}
+		return false;
+	}else if(direction == 1) {
+		for(int lin = 0; lin < getSize(); lin++){
+                        for(int col = 0; col < getSize(); col++) {
+                                if (col + 1 < getSize()) {
+                                        if(board[lin][col].getValue() != 0 && board[lin][col + 1].getValue() == 0) return true;
+                                        else if(board[lin][col].getValue() == board[lin][col + 1].getValue() && board[lin][col].getValue() != 0) return true;
+                                }
+                        }
+                }
+                return false;
+	}else{
+		throw std::invalid_argument("Direction must be 1 or 0");
+	}
+}
+
+
+bool Board::can_move_by_column(int direction) {
+        //1 -> right
+        //0 -> left
+        if(direction == 0) {
+                for(int lin = 0; lin < getSize(); lin++){
+                        for(int col = getSize() - 1; col > -1; col--) {
+                                if (col - 1 >= 0) {
+                                        if(board[col][lin].getValue() != 0 && board[col - 1][lin].getValue() == 0) return true;
+                                        else if(board[col][lin].getValue() == board[col - 1][lin].getValue() && board[col][lin].getValue() != 0) return true;
+                                }
+                        } 
+                }
+                return false;
+        }else if(direction == 1) {
+                for(int lin = 0; lin < getSize(); lin++){
+                        for(int col = 0; col < getSize(); col++) {
+                                if (col + 1 < getSize()) {
+                                        if(board[col][lin].getValue() != 0 && board[col + 1][lin].getValue() == 0) return true;
+                                        else if(board[col][lin].getValue() == board[col + 1][lin].getValue() && board[col][lin].getValue() != 0) return true;
+                                }
+                        }
+                }
+                return false;
+        }else{
+                throw std::invalid_argument("Direction must be 1 or 0");
+        }
+}
+
+
+bool Board::game_over() {
+    if(!can_move_by_column(0) && !can_move_by_column(1) && !can_move_by_line(0) && !can_move_by_line(1)) return true;
+    return false;
+}
+
+int Board::get_points() {
+    int max = 0;
+    for(int lin = 0; lin < getSize(); lin++){
+        for(int col = 0; col < getSize(); col++) {
+            if (board[lin][col].getValue() > max) max = board[lin][col].getValue();
+        }
+    }
+    return max;
 }

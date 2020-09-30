@@ -28,7 +28,10 @@ class Board {
         void moveRight(); 
         void moveLeft(); 
         void moveUp(); 
-        void moveDown(); 
+        void moveDown();
+        bool game_over();
+        map<string, int> get_counter_movements() { return counterMovements; }
+        int get_points();
     private:
         Piece **board;
         int boardSize;
@@ -47,8 +50,10 @@ class Board {
         void mergeLine(int x);
         void mergeColumn(int y);
         void resetAvaialablePieces();
-	    void rotate_board_by_line();
+        void rotate_board_by_line();
         void rotate_board_by_column();
+	    bool can_move_by_line(int direction); // 1 -> right, 0, left
+        bool can_move_by_column(int direction); // 1 -> up, 0 -> down
 };
 
 

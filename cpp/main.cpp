@@ -8,39 +8,52 @@
 
 using namespace std;
 
-
-
 int main() {
-    // srandom(time(NULL));
-    // srand(time(NULL));
-    // Piece p(0,0), p1(0,0,4), p3;
-    // cout << "Valor: " << p1.getValue() << " " << p.getValue() << endl;
-    // p1 = p1 + p;
-    // cout << "Valor: " << p1.getValue() << " " << p.getValue() << endl;
-    // cout << p3 << endl;
-
-    // tuple<int, int> pos(1,2);
-    
-    // cout << get<0>(pos) << endl;
-    // cout << get<1>(pos) << endl;
-
-    // map<string, int> aux = {
-    //     {"up", 8},
-    //     {"down", 0},
-    //     {"left", 0},
-    //     {"right", 0}
-    // };
-    // cout << aux["up"] << endl;
-    // aux["up"] ++;
-    // cout << aux["up"] << endl;
 
     Board b;
    	cout << "Original" << endl;
 	cout << b << endl << endl;  
-	
-	b.moveDown();
-	cout << "Movido Down"<< endl;
-	cout << b << endl;
-    
-	return 0;
+
+    int counter = 0;
+
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist4(0, 3);
+
+    while(b.game_over() == false) {
+        int move = dist4(rng);
+        cout << move << " ";
+        switch(move) {
+            case 0:
+                b.moveUp();
+                cout << b << endl;
+                counter++;
+                break;
+            case 1:
+                b.moveDown();
+                cout << b << endl;
+                counter++;
+                break;
+            case 2:
+                b.moveLeft();
+                cout << b << endl;
+                counter++;
+                break;
+            case 3:
+                b.moveRight();
+                cout << b << endl;
+                counter++;
+                break;
+        }
+    }
+    cout << " >> Counter movements << " << endl;
+    cout << "Movimentos tentados: " << counter << endl;
+    cout << "left: " << b.get_counter_movements()["left"] << endl;
+    cout << "right: " << b.get_counter_movements()["right"] << endl;
+    cout << "up: " << b.get_counter_movements()["up"] << endl;
+    cout << "down: " << b.get_counter_movements()["down"] << endl << endl;
+    cout << "Points: " << b.get_points() << endl;
+
+
+    return 0;
 }

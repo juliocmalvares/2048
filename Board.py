@@ -115,6 +115,8 @@ class Board(object):
 						elif self.board[lin][col].value == self.board[lin][col + 1].value and self.board[lin][col].value != 0:
 							return True
 			return False
+        
+        
 	def __can_move_ver(self, mov):
 		"""
 			mov = 1 = Up

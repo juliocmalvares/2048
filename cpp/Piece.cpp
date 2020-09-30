@@ -59,12 +59,12 @@ void Piece::setY(int _y) {
 }
 
 void Piece::setValue(int _value) {
-   /* if (_value % 2 == 0 || _value == 0){
+   if (_value % 2 == 0 || _value == 0){
         value = _value;
     }else {
         throw std::invalid_argument("Value must be divisible by 2");
-    }*/
-	value = _value;
+    }
+	//value = _value;
 }
 
 Piece Piece::operator+(Piece &other) {
